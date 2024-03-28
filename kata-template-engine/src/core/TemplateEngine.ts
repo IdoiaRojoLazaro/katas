@@ -1,29 +1,46 @@
-import { TemplateEngineErrorCodes, TemplateEngineProps, TemplateEngineResult, Variables } from '../types';
+import { TemplateEngineErrorCodes, TemplateEngineProps, TemplateEngineResultProps, Variables } from '../types';
 import { TemplateEngineError } from './TemplateEngineError';
+import { TemplateEngineResult } from './TemplateEngineResult';
 
 export class TemplateEngine {
-	result: string;
 	errors: TemplateEngineError[] | null;
-	constructor() {
-		this.result = '';
+	constructor(
+		private readonly templateText: TemplateEngineProps['template'],
+		private readonly variables: TemplateEngineProps['variables']
+	) {
 		this.errors = null;
 	}
 
-	parse(template: TemplateEngineProps['template'], variables: TemplateEngineProps['variables']): TemplateEngineResult {
-		const templateVariables = this.extractVariables(template);
-		let result: string = template;
-		if (this.templateTextHasVariables(templateVariables) && this.variablesAreNotValid(variables)) {
-			this.addError(TemplateEngineErrorCodes.MISSING_PARAMETER);
-		} else {
-			result = this.replaceVariablesInTemplate(template, variables);
-			this.addErrorsForTemplateVariablesNotReplaced(variables, templateVariables);
-			this.addErrorsForNotFoundedVariables(variables, templateVariables);
+	parse(templateText: TemplateEngineProps['template'], variables: TemplateEngineProps['variables']) {
+		const templateVariables = this.extractVariables(templateText);
+
+		if (!templateText) {
+			return this.templateWithMissingParams(templateText, TemplateEngineErrorCodes.MISSING_PARAMETER_TEMPLATE_TEXT);
 		}
 
-		return {
-			result,
-			errors: this.errors,
-		};
+		if (this.templateTextHasVariables(templateVariables) && this.variablesAreNotValid(variables)) {
+			return this.templateWithMissingParams(templateText, TemplateEngineErrorCodes.MISSING_PARAMETER_VARIABLES);
+		}
+
+		return this.templateParsed(templateText, templateVariables, variables);
+	}
+
+	static create(templateText, variables) {
+		return new TemplateEngine(templateText, variables);
+	}
+
+	private templateParsed(templateText: TemplateEngineResultProps['parsedText'], templateVariables, variables) {
+		const parsedText = this.replaceVariablesInTemplate(templateText, variables);
+
+		this.addErrorsForTemplateVariablesNotReplaced(variables, templateVariables);
+		this.addErrorsForNotFoundedVariables(variables, templateVariables);
+
+		return TemplateEngineResult.create(parsedText, this.errors);
+	}
+
+	private templateWithMissingParams(templateText: TemplateEngineResult['parsedText'], error: TemplateEngineErrorCodes) {
+		this.addError(error);
+		return TemplateEngineResult.create(templateText, this.errors);
 	}
 
 	private extractVariables(template: string): string[] {

@@ -2,48 +2,60 @@ import { TemplateEngine } from '../core/TemplateEngine';
 import { TemplateEngineErrorCodes, Variables } from '../types';
 
 describe('Template engine error cases', () => {
-	it('should throw error if parameter variables is null or undefined', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input: 'This is a template with one ${variable}!',
+	it('should return an error if parameter variables is null or undefined', () => {
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: 'This is a template with one ${variable}!',
 			variables: null,
 		});
 
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors.length).toBe(1);
-		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.MISSING_PARAMETER);
+		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.MISSING_PARAMETER_VARIABLES);
 		expect(errors[0].message).toBe('Missing parameter variables');
 	});
 
+	it('should return an error if parameter templateText is null or undefined', () => {
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: null,
+			variables: null,
+		});
+
+		expect(parsedText).toBe(output);
+		expect(errors.length).toBe(1);
+		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.MISSING_PARAMETER_TEMPLATE_TEXT);
+		expect(errors[0].message).toBe('Missing parameter template text');
+	});
+
 	it('should return an error for every variable not found in template', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input: 'This is a template with one ${variable}!',
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: 'This is a template with one ${variable}!',
 			variables: {
 				variable: null,
 			},
 		});
 
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors.length).toBe(1);
 		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.VARIABLE_NOT_REPLACED);
 		expect(errors[0].message).toBe('Variable variable could not be replaced');
 	});
 	it('should throw error for every variable in the template could not be replaced', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input: 'This is a template with one ${variable} and one ${foo}!',
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: 'This is a template with one ${variable} and one ${foo}!',
 			variables: {
 				foo: 'foo',
 			},
 		});
 
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors.length).toBe(1);
 		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.VARIABLE_NOT_REPLACED);
 		expect(errors[0].message).toBe('Variable variable could not be replaced');
 	});
 
 	it('should throw error for every variable in the template that has no match in the variables object', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input:
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText:
 				'This is a text with a ${variable} to be replaced. And this is another text with ${other-variable} to be replaced! \n And this is the last text with ${last-variable} to be replaced.',
 			variables: {
 				variable: null,
@@ -52,7 +64,7 @@ describe('Template engine error cases', () => {
 			},
 		});
 
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors.length).toBe(3);
 		expect(errors[0].errorCode).toBe(TemplateEngineErrorCodes.VARIABLE_NOT_REPLACED);
 		expect(errors[0].message).toBe('Variable variable could not be replaced');
@@ -63,26 +75,26 @@ describe('Template engine error cases', () => {
 
 describe('Template engine', () => {
 	it('should parse a template without variables', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input: 'This is a template without variables!',
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: 'This is a template without variables!',
 			variables: null,
 		});
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors).toBeNull();
 	});
 	it('should parse a template with a variable.', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input: 'This is a template with one ${variable}!',
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText: 'This is a template with one ${variable}!',
 			variables: {
 				variable: 'foo',
 			},
 		});
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors).toBeNull();
 	});
 	it('should parse a template with multiple variables', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input:
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText:
 				'This is a text with a ${variable} to be replaced. And this is another text with ${other-variable} to be replaced! \n And this is the last text with ${last-variable} to be replaced.',
 			variables: {
 				variable: 'foo',
@@ -90,42 +102,42 @@ describe('Template engine', () => {
 				'last-variable': 'baz',
 			},
 		});
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors).toBeNull();
 	});
 	it('should parse a template with repeated variables', () => {
-		const { output, result, errors } = testTemplateEngine({
-			input:
+		const { output, parsedText, errors } = testTemplateEngine({
+			templateText:
 				'This is a text with a ${variable} to be replaced. And this is another text with ${variable} to be replaced! \n And this is the last text with ${variable} to be replaced.',
 			variables: {
 				variable: 'foo',
 			},
 		});
-		expect(result).toBe(output);
+		expect(parsedText).toBe(output);
 		expect(errors).toBeNull();
 	});
 });
 
 function testTemplateEngine({
-	input,
+	templateText,
 	variables,
 	output = null,
 }: {
-	input: string;
+	templateText: string;
 	variables: Variables;
 	output?: string;
 }) {
-	const templateEngine = new TemplateEngine();
-	const { result, errors } = templateEngine.parse(input, variables);
+	const templateEngine = TemplateEngine.create(templateText, variables);
+	const { parsedText, errors } = templateEngine.parse(templateText, variables);
 	if (!output) {
-		output = replaceVariablesInString(input, variables);
+		output = replaceVariablesInString(templateText, variables);
 	}
-	return { output, result, errors };
+	return { output, parsedText, errors };
 }
 
-function replaceVariablesInString(input: string, variables: Variables) {
-	if (!variables) return input;
-	return input.replace(/\${(.*?)}/g, (match, variable) => {
+function replaceVariablesInString(templateText: string, variables: Variables) {
+	if (!variables) return templateText;
+	return templateText.replace(/\${(.*?)}/g, (match, variable) => {
 		const trimmedVariable = variable.trim();
 		if (variables.hasOwnProperty(trimmedVariable)) {
 			return variables[trimmedVariable];

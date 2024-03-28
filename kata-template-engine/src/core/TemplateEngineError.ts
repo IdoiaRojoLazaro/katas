@@ -8,15 +8,17 @@ export class TemplateEngineError {
 
 	static create(errorCode: TemplateEngineErrorCodes, variable?: string): TemplateEngineError {
 		const message = this.setMessageError(errorCode, variable);
-		console.log(message);
 		return new TemplateEngineError(errorCode, message);
 	}
 
 	private static setMessageError(errorCode: TemplateEngineErrorCodes, variable?: string): string {
 		let message = '';
 		switch (errorCode) {
-			case TemplateEngineErrorCodes.MISSING_PARAMETER:
+			case TemplateEngineErrorCodes.MISSING_PARAMETER_VARIABLES:
 				message = 'Missing parameter variables';
+				break;
+			case TemplateEngineErrorCodes.MISSING_PARAMETER_TEMPLATE_TEXT:
+				message = 'Missing parameter template text';
 				break;
 
 			case TemplateEngineErrorCodes.VARIABLE_NOT_FOUND:
