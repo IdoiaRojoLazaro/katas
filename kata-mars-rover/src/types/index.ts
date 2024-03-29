@@ -1,4 +1,4 @@
-export type Position = [number, number];
+export type Coordinates = [number, number];
 export enum Command {
 	L = 'L',
 	R = 'R',

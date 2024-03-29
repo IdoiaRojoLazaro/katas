@@ -12,28 +12,36 @@ export class MartianGrid {
 		return new MartianGrid(longitude, latitude);
 	}
 
+	maxLongitude(): number {
+		return this.longitude;
+	}
+
+	maxLatitude(): number {
+		return this.latitude;
+	}
+
 	previousLongitude([longitude, latitude]: Coordinates): Coordinates {
 		this.validateCoordinates([longitude, latitude]);
-		return [longitude === 0 ? this.longitude - 1 : longitude - 1, latitude];
+		return [longitude === 0 ? this.longitude : longitude - 1, latitude];
 	}
 
-	previousLatitude(longitude: number, latitude: number): Coordinates {
+	previousLatitude([longitude, latitude]: Coordinates): Coordinates {
 		this.validateCoordinates([longitude, latitude]);
-		return [longitude, latitude === 0 ? this.latitude - 1 : latitude - 1];
+		return [longitude, latitude === 0 ? this.latitude : latitude - 1];
 	}
 
-	nextLongitude(longitude: number, latitude: number): Coordinates {
+	nextLongitude([longitude, latitude]: Coordinates): Coordinates {
 		this.validateCoordinates([longitude, latitude]);
-		return [longitude === this.longitude - 1 ? 0 : longitude + 1, latitude];
+		return [longitude === this.longitude ? 0 : longitude + 1, latitude];
 	}
 
-	nextLatitude(longitude: number, latitude: number): Coordinates {
+	nextLatitude([longitude, latitude]: Coordinates): Coordinates {
 		this.validateCoordinates([longitude, latitude]);
-		return [longitude, latitude === this.latitude - 1 ? 0 : latitude + 1];
+		return [longitude, latitude === this.latitude ? 0 : latitude + 1];
 	}
 
 	private validateCoordinates([longitude, latitude]: Coordinates) {
-		if (longitude < 0 || latitude < 0 || longitude >= this.longitude || latitude >= this.latitude) {
+		if (longitude < 0 || latitude < 0 || longitude > this.longitude || latitude > this.latitude) {
 			throw new Error('Coordinates are outside of the grid');
 		}
 	}
