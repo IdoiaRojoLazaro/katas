@@ -1,14 +1,14 @@
 import { Position, Direction, Command, directions } from '../types';
-import { Matrix } from './Matrix';
+import { Grid } from './Grid';
 
 export class Rover {
 	constructor(
 		private position: Position,
 		private direction: Direction,
-		private planet: Matrix
+		private planet: Grid
 	) {}
 
-	static create(position: Position, direction: Direction, planet: Matrix) {
+	static create(position: Position, direction: Direction, planet: Grid) {
 		const [x, y] = position;
 		if (x < 0 || x > planet.lastRow() || y < 0 || y > planet.lastColumn()) {
 			throw new Error('Rover is outside of the planet');

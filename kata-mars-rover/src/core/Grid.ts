@@ -1,4 +1,4 @@
-export class Matrix {
+export class Grid {
 	constructor(
 		private rows: number,
 		private columns: number
