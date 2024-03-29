@@ -1,39 +1,39 @@
 type Coordinates = [x: number, y: number];
 export class MartianGrid {
 	private constructor(
-		private rows: number,
-		private columns: number
+		private longitude: number,
+		private latitude: number
 	) {}
 
-	static create(rows: number, columns: number) {
-		if (rows < 0 || columns < 0) {
-			throw new Error('Number of rows and columns must be greater than 0');
+	static create(longitude: number, latitude: number) {
+		if (longitude < 0 || latitude < 0) {
+			throw new Error('Longitude and latitude must be greater than or equal to 0');
 		}
-		return new MartianGrid(rows, columns);
+		return new MartianGrid(longitude, latitude);
 	}
 
-	previousRow([x, y]: Coordinates): Coordinates {
-		this.validateCoordinates([x, y]);
-		return [x === 0 ? this.rows - 1 : x - 1, y];
+	previousLongitude([longitude, latitude]: Coordinates): Coordinates {
+		this.validateCoordinates([longitude, latitude]);
+		return [longitude === 0 ? this.longitude - 1 : longitude - 1, latitude];
 	}
 
-	previousColumn(x: number, y: number): Coordinates {
-		this.validateCoordinates([x, y]);
-		return [x, y === 0 ? this.columns - 1 : y - 1];
+	previousLatitude(longitude: number, latitude: number): Coordinates {
+		this.validateCoordinates([longitude, latitude]);
+		return [longitude, latitude === 0 ? this.latitude - 1 : latitude - 1];
 	}
 
-	nextRow(x: number, y: number): Coordinates {
-		this.validateCoordinates([x, y]);
-		return [x === this.rows - 1 ? 0 : x + 1, y];
+	nextLongitude(longitude: number, latitude: number): Coordinates {
+		this.validateCoordinates([longitude, latitude]);
+		return [longitude === this.longitude - 1 ? 0 : longitude + 1, latitude];
 	}
 
-	nextColumn(x: number, y: number): Coordinates {
-		this.validateCoordinates([x, y]);
-		return [x, y === this.columns - 1 ? 0 : y + 1];
+	nextLatitude(longitude: number, latitude: number): Coordinates {
+		this.validateCoordinates([longitude, latitude]);
+		return [longitude, latitude === this.latitude - 1 ? 0 : latitude + 1];
 	}
 
-	private validateCoordinates([x, y]: Coordinates) {
-		if (x < 0 || y < 0 || x > this.rows || y > this.columns) {
+	private validateCoordinates([longitude, latitude]: Coordinates) {
+		if (longitude < 0 || latitude < 0 || longitude >= this.longitude || latitude >= this.latitude) {
 			throw new Error('Coordinates are outside of the grid');
 		}
 	}
