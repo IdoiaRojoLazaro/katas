@@ -11,3 +11,4 @@ export enum Direction {
 	W = 'W',
 }
 export const directions: Direction[] = Object.values(Direction);
+export const validCommands: Command[] = Object.values(Command);

@@ -9,50 +9,70 @@ describe('Navigator tests', () => {
 	});
 	it('Should move forward when direction north', () => {
 		const navigator = createNavigator({ position: [5, 5], direction: Direction.N });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([5, 6]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([5, 6]);
 	});
 	it('Should move forward when direction est', () => {
 		const navigator = createNavigator({ position: [5, 5], direction: Direction.E });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([6, 5]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([6, 5]);
 	});
 	it('Should move forward when direction south', () => {
 		const navigator = createNavigator({ position: [5, 5], direction: Direction.S });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([5, 4]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([5, 4]);
 	});
 	it('Should move forward when direction west', () => {
 		const navigator = createNavigator({ position: [5, 5], direction: Direction.W });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([4, 5]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([4, 5]);
 	});
 });
 
 describe('Navigator tests edge of the planet', () => {
 	it('Should wrap around the grid when reaching the edge with north direction', () => {
 		const navigator = createNavigator({ position: [10, 10] });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([10, 0]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([10, 0]);
 	});
 	it('Should wrap around the grid when reaching the edge with south direction', () => {
 		const navigator = createNavigator({ direction: Direction.S });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([0, 10]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([0, 10]);
 	});
 	it('Should wrap around the grid when reaching the edge with est direction', () => {
 		const navigator = createNavigator({ position: [10, 10], direction: Direction.E });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([0, 10]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([0, 10]);
 	});
 	it('Should wrap around the grid when reaching the edge with west direction', () => {
 		const navigator = createNavigator({ direction: Direction.W });
-		const nextNavigator = navigator.moveForward();
-		expect(nextNavigator.currentCoordinates()).toEqual([10, 0]);
+		navigator.moveForward();
+		expect(navigator.currentCoordinates()).toEqual([10, 0]);
 	});
 });
 
 describe('Navigator tests edge cases', () => {
+	it('Should throw an error if planet is null', () => {
+		const planet = null as MartianGrid;
+		expect(() => {
+			Navigator.create([0, 0], Direction.N as Direction, planet);
+		}).toThrow('Planet is required');
+	});
+	it('Should throw an error if planet is undefined', () => {
+		const planet = undefined as MartianGrid;
+		expect(() => {
+			Navigator.create([0, 0], Direction.N as Direction, planet);
+		}).toThrow('Planet is required');
+	});
+
+	it('Should throw an error if planet is not valid', () => {
+		const invalidPlanet = 'invalidPlanet' as unknown as MartianGrid;
+		expect(() => {
+			Navigator.create([0, 0], Direction.N as Direction, invalidPlanet);
+		}).toThrow('Planet must be of type MartianGrid');
+	});
+
 	it('Should returns an error if direction is invalid', () => {
 		const planet = MartianGrid.create(10, 10);
 		expect(() => {

@@ -9,6 +9,8 @@ export class Navigator {
 	) {}
 
 	static create(position: Coordinates, direction: Direction, planet: MartianGrid) {
+		if (!planet || planet === undefined) throw new Error('Planet is required');
+		if (!(planet instanceof MartianGrid)) throw new Error('Planet must be of type MartianGrid');
 		const [x, y] = position;
 		if (x < 0 || y < 0 || x > planet.maxLongitude() || y > planet.maxLatitude()) {
 			throw new Error('Coordinates are outside of the grid');
@@ -26,24 +28,25 @@ export class Navigator {
 		return this.direction;
 	}
 
-	moveForward(): Navigator {
+	moveForward() {
 		const [x, y] = this.position;
-		let newPosition: Coordinates;
+		// let newPosition: Coordinates;
 		switch (this.direction) {
 			case Direction.N:
-				newPosition = this.planet.nextLatitude([x, y]);
+				this.position = this.planet.nextLatitude([x, y]);
 				break;
 			case Direction.E:
-				newPosition = this.planet.nextLongitude([x, y]);
+				this.position = this.planet.nextLongitude([x, y]);
 				break;
 			case Direction.S:
-				newPosition = this.planet.previousLatitude([x, y]);
+				this.position = this.planet.previousLatitude([x, y]);
 				break;
 			case Direction.W:
-				newPosition = this.planet.previousLongitude([x, y]);
+				this.position = this.planet.previousLongitude([x, y]);
 				break;
 		}
-		return new Navigator(newPosition, this.direction, this.planet);
+
+		// return new Navigator(newPosition, this.direction, this.planet);
 	}
 
 	turnLeft() {

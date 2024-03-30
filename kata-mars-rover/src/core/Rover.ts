@@ -1,74 +1,40 @@
-import { Position, Direction, Command, directions } from '../types';
-import { Grid } from './Grid';
+import { Command, validCommands } from '../types';
+import { Navigator } from './Navigator';
 
 export class Rover {
-	constructor(
-		private position: Position,
-		private direction: Direction,
-		private planet: Grid
-	) {}
+	private constructor(private navigator: Navigator) {}
 
-	static create(position: Position, direction: Direction, planet: Grid) {
-		const [x, y] = position;
-		if (x < 0 || x > planet.lastRow() || y < 0 || y > planet.lastColumn()) {
-			throw new Error('Rover is outside of the planet');
-		}
-		return new Rover(position, direction, planet);
-	}
-	getPosition() {
-		return `${this.position[0]}:${this.position[1]}:${this.direction}`;
-	}
-	move(commands: Command[]) {
-		commands.forEach((command) => {
-			if (command === Command.L) {
-				this.turnLeft();
-			}
-			if (command === Command.R) {
-				this.turnRight();
-			}
-			if (command === Command.F) {
-				this.moveForward();
-			}
-		});
+	static create(navigator: Navigator) {
+		if (!navigator || navigator === undefined) throw new Error('Navigator is required');
+		if (!(navigator instanceof Navigator)) throw new Error('Navigator must be of type Navigator');
+		return new Rover(navigator);
 	}
 
-	private moveForward() {
-		if (this.direction === Direction.N) {
-			this.moveNorth();
-		}
-		if (this.direction === Direction.E) {
-			this.moveEst();
-		}
-		if (this.direction === Direction.S) {
-			this.moveSouth();
-		}
-		if (this.direction === Direction.W) {
-			this.moveWest();
-		}
-	}
-	private moveNorth() {
-		const [x, y] = this.position;
-		this.position = [x, y === this.planet.lastRow() ? 0 : y + 1];
-	}
-	private moveSouth() {
-		const [x, y] = this.position;
-		this.position = [x, y === 0 ? this.planet.lastRow() : y - 1];
-	}
-	private moveEst() {
-		const [x, y] = this.position;
-		this.position = [x === this.planet.lastRow() ? 0 : x + 1, y];
-	}
-	private moveWest() {
-		const [x, y] = this.position;
-		this.position = [x === 0 ? this.planet.lastRow() : x - 1, y];
+	getLocation() {
+		const [x, y] = this.navigator.currentCoordinates();
+		return `${x}:${y}:${this.navigator.currentDirection()}`;
 	}
 
-	private turnLeft() {
-		const index = directions.indexOf(this.direction);
-		this.direction = directions[(index - 1 + directions.length) % directions.length];
+	executeCommands(commands: Command[]) {
+		for (const command of commands) {
+			this.executeCommand(command);
+		}
 	}
-	private turnRight() {
-		const index = directions.indexOf(this.direction);
-		this.direction = directions[(index + 1) % directions.length];
+
+	private executeCommand(command: Command): void {
+		if (!validCommands.includes(command)) {
+			throw new Error('Command is not valid');
+		}
+		switch (command) {
+			case Command.L:
+				this.navigator.turnLeft();
+				break;
+			case Command.R:
+				this.navigator.turnRight();
+				break;
+			case Command.F:
+				this.navigator.moveForward();
+				break;
+		}
 	}
 }
