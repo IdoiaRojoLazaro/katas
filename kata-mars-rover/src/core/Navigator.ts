@@ -30,7 +30,6 @@ export class Navigator {
 
 	moveForward() {
 		const [x, y] = this.position;
-		// let newPosition: Coordinates;
 		switch (this.direction) {
 			case Direction.N:
 				this.position = this.planet.nextLatitude([x, y]);
@@ -45,8 +44,6 @@ export class Navigator {
 				this.position = this.planet.previousLongitude([x, y]);
 				break;
 		}
-
-		// return new Navigator(newPosition, this.direction, this.planet);
 	}
 
 	turnLeft() {
