@@ -12,7 +12,7 @@ describe('Navigator tests', () => {
 		navigator.moveForward();
 		expect(navigator.currentCoordinates()).toEqual([5, 6]);
 	});
-	it('Should move forward when direction est', () => {
+	it('Should move forward when direction east', () => {
 		const navigator = createNavigator({ position: [5, 5], direction: Direction.E });
 		navigator.moveForward();
 		expect(navigator.currentCoordinates()).toEqual([6, 5]);
@@ -31,74 +31,59 @@ describe('Navigator tests', () => {
 
 describe('Navigator tests edge of the planet', () => {
 	it('Should wrap around the grid when reaching the edge with north direction', () => {
-		const navigator = createNavigator({ position: [10, 10] });
+		const navigator = createNavigator({ position: [9, 9] });
 		navigator.moveForward();
-		expect(navigator.currentCoordinates()).toEqual([10, 0]);
+		expect(navigator.currentCoordinates()).toEqual([9, 0]);
 	});
 	it('Should wrap around the grid when reaching the edge with south direction', () => {
 		const navigator = createNavigator({ direction: Direction.S });
 		navigator.moveForward();
-		expect(navigator.currentCoordinates()).toEqual([0, 10]);
+		expect(navigator.currentCoordinates()).toEqual([0, 9]);
 	});
-	it('Should wrap around the grid when reaching the edge with est direction', () => {
-		const navigator = createNavigator({ position: [10, 10], direction: Direction.E });
+	it('Should wrap around the grid when reaching the edge with east direction', () => {
+		const navigator = createNavigator({ position: [9, 9], direction: Direction.E });
 		navigator.moveForward();
-		expect(navigator.currentCoordinates()).toEqual([0, 10]);
+		expect(navigator.currentCoordinates()).toEqual([0, 9]);
 	});
 	it('Should wrap around the grid when reaching the edge with west direction', () => {
 		const navigator = createNavigator({ direction: Direction.W });
 		navigator.moveForward();
-		expect(navigator.currentCoordinates()).toEqual([10, 0]);
+		expect(navigator.currentCoordinates()).toEqual([9, 0]);
 	});
 });
 
 describe('Navigator tests edge cases', () => {
+	const planet = MartianGrid.create(10, 10);
 	it('Should throw an error if planet is null', () => {
-		const planet = null as MartianGrid;
 		expect(() => {
-			Navigator.create([0, 0], Direction.N as Direction, planet);
+			Navigator.create([0, 0], Direction.N as Direction, null as MartianGrid);
 		}).toThrow('Planet is required');
-	});
-	it('Should throw an error if planet is undefined', () => {
-		const planet = undefined as MartianGrid;
 		expect(() => {
-			Navigator.create([0, 0], Direction.N as Direction, planet);
+			Navigator.create([0, 0], Direction.N as Direction, undefined as MartianGrid);
 		}).toThrow('Planet is required');
-	});
-
-	it('Should throw an error if planet is not valid', () => {
-		const invalidPlanet = 'invalidPlanet' as unknown as MartianGrid;
 		expect(() => {
-			Navigator.create([0, 0], Direction.N as Direction, invalidPlanet);
+			Navigator.create([0, 0], Direction.N as Direction, 'invalidPlanet' as unknown as MartianGrid);
 		}).toThrow('Planet must be of type MartianGrid');
 	});
 
 	it('Should returns an error if direction is invalid', () => {
-		const planet = MartianGrid.create(10, 10);
 		expect(() => {
 			Navigator.create([0, 0], 'invalidDirection' as Direction, planet);
 		}).toThrow('Invalid direction');
 	});
-	it('Should returns an error if longitude is negative', () => {
-		const planet = MartianGrid.create(10, 10);
+	it('Should returns an error if longitude or latitude are negative', () => {
+		expect(() => {
+			Navigator.create([-10, 10], Direction.N, planet);
+		}).toThrow('Coordinates are outside of the grid');
 		expect(() => {
 			Navigator.create([-10, 10], Direction.N, planet);
 		}).toThrow('Coordinates are outside of the grid');
 	});
-	it('Should returns an error if latitude is negative', () => {
-		const planet = MartianGrid.create(10, 10);
-		expect(() => {
-			Navigator.create([-10, 10], Direction.N, planet);
-		}).toThrow('Coordinates are outside of the grid');
-	});
-	it('Should returns an error if longitude is bigger than planet size', () => {
-		const planet = MartianGrid.create(10, 10);
+
+	it('Should returns an error if longitude or latitude is bigger than planet size', () => {
 		expect(() => {
 			Navigator.create([20, 10], Direction.N, planet);
 		}).toThrow('Coordinates are outside of the grid');
-	});
-	it('Should returns an error if latitude is bigger than planet size', () => {
-		const planet = MartianGrid.create(10, 10);
 		expect(() => {
 			Navigator.create([10, 20], Direction.N, planet);
 		}).toThrow('Coordinates are outside of the grid');

@@ -4,65 +4,66 @@ import { Rover } from '../core/Rover';
 import { Direction, Command, Coordinates } from '../types';
 
 describe('Mars rover', () => {
-	it('Should turn left', () => {
-		const rover = createRover();
-		rover.executeCommands([Command.L]);
-		expect(rover.getLocation()).toBe('0:0:W');
+	it.each([
+		[Direction.N, '0:0:N'],
+		[Direction.E, '0:0:E'],
+		[Direction.S, '0:0:S'],
+		[Direction.W, '0:0:W'],
+	])('Should create a rover facing %s', (direction, expectedLocation) => {
+		const rover = createRover({ direction });
+		expect(rover.getLocation()).toBe(expectedLocation);
 	});
 
-	it('Should turn right', () => {
+	it.each([
+		[[Command.L], '0:0:W'],
+		[[Command.R], '0:0:E'],
+		[[Command.F], '0:1:N'],
+		[[Command.F, Command.F], '0:2:N'],
+		[[Command.R, Command.F, Command.F], '2:0:E'],
+		[[Command.L, Command.F, Command.F], '8:0:W'],
+		[[Command.L, Command.L, Command.F, Command.F], '0:8:S'],
+		[[Command.F, Command.R, Command.F, Command.F, Command.R], '2:1:S'],
+	])('Should execute commands %s', (commands, expectedLocation) => {
 		const rover = createRover();
-		rover.executeCommands([Command.R]);
-		expect(rover.getLocation()).toBe('0:0:E');
+		rover.executeCommands(commands);
+		expect(rover.getLocation()).toBe(expectedLocation);
 	});
 
-	it('Should move forward', () => {
+	it('Should execute multiple %s', () => {
 		const rover = createRover();
-		rover.executeCommands([Command.F]);
-		expect(rover.getLocation()).toBe('0:1:N');
-	});
-
-	it('Should follow multiple commands', () => {
-		const rover = createRover();
-		rover.executeCommands([Command.R, Command.F, Command.F]);
-		expect(rover.getLocation()).toBe('2:0:E');
+		rover.executeCommands([Command.L, Command.F, Command.F]);
+		expect(rover.getLocation()).toBe('8:0:W');
 	});
 
 	it('Should get around the planet if is the last row', () => {
-		const rover = createRover({ position: [10, 10], direction: Direction.E });
+		const rover = createRover({ position: [9, 9], direction: Direction.E });
 		rover.executeCommands([Command.F]);
-		expect(rover.getLocation()).toBe('0:10:E');
+		expect(rover.getLocation()).toBe('0:9:E');
 	});
 	it('Should get around the planet if is the first row', () => {
 		const rover = createRover({ direction: Direction.W });
 		rover.executeCommands([Command.F]);
-		expect(rover.getLocation()).toBe('10:0:W');
+		expect(rover.getLocation()).toBe('9:0:W');
 	});
 	it('Should get around the planet if is the last column', () => {
-		const rover = createRover({ position: [10, 10] });
+		const rover = createRover({ position: [9, 9] });
 		rover.executeCommands([Command.F]);
-		expect(rover.getLocation()).toBe('10:0:N');
+		expect(rover.getLocation()).toBe('9:0:N');
 	});
 	it('Should get around the planet if is the first column', () => {
 		const rover = createRover({ direction: Direction.S });
 		rover.executeCommands([Command.F]);
-		expect(rover.getLocation()).toBe('0:10:S');
+		expect(rover.getLocation()).toBe('0:9:S');
 	});
 });
 
 describe('Edge cases', () => {
 	it('Should throw an error if navigator is null', () => {
-		const navigator = null as Navigator;
-		expect(() => Rover.create(navigator)).toThrow('Navigator is required');
-	});
-	it('Should throw an error if navigator is undefined', () => {
-		const navigator = undefined as Navigator;
-		expect(() => Rover.create(navigator)).toThrow('Navigator is required');
-	});
-
-	it('Should throw an error if navigator is not valid', () => {
-		const invalidNavigator = 'invalidNavigator' as unknown as Navigator;
-		expect(() => Rover.create(invalidNavigator)).toThrow('Navigator must be of type Navigator');
+		expect(() => Rover.create(null as Navigator)).toThrow('Navigator is required');
+		expect(() => Rover.create(undefined as Navigator)).toThrow('Navigator is required');
+		expect(() => Rover.create('invalidNavigator' as unknown as Navigator)).toThrow(
+			'Navigator must be of type Navigator'
+		);
 	});
 
 	it('Should throw an error for a not valid command', () => {
@@ -70,6 +71,7 @@ describe('Edge cases', () => {
 		const navigator = Navigator.create([0, 0], Direction.N, planet);
 		const rover = Rover.create(navigator);
 		expect(() => rover.executeCommands(['X' as Command])).toThrow('Command is not valid');
+		expect(() => rover.executeCommands([null as Command])).toThrow('Command is not valid');
 	});
 });
 

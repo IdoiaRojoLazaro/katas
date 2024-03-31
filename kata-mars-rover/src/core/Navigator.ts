@@ -12,7 +12,7 @@ export class Navigator {
 		if (!planet || planet === undefined) throw new Error('Planet is required');
 		if (!(planet instanceof MartianGrid)) throw new Error('Planet must be of type MartianGrid');
 		const [x, y] = position;
-		if (x < 0 || y < 0 || x > planet.maxLongitude() || y > planet.maxLatitude()) {
+		if (x < 0 || y < 0 || x >= planet.maxLongitude() || y >= planet.maxLatitude()) {
 			throw new Error('Coordinates are outside of the grid');
 		}
 		if (!directions.includes(direction)) {
