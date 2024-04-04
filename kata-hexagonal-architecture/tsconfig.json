@@ -1,13 +1,16 @@
 {
 	"compilerOptions": {
-		"target": "es5",
+		"target": "ES2020",
+		"lib": ["ES2020"],
 		"module": "commonjs",
-		"moduleResolution": "node",
-		"jsx": "react",
+		"skipLibCheck": true,
 		"noImplicitAny": false,
-		"sourceMap": true,
-		"outDir": "./lib/"
+		"strictNullChecks": false,
+		"esModuleInterop": true,
+		"jsx": "react",
+		"allowSyntheticDefaultImports": true,
+		"types": ["jest", "node"]
 	},
-	"include": ["src/**/*", "src/**/*.ts", "test/**/*.ts"],
-	"exclude": ["node_modules", "**/*.spec.ts"]
+	"include": ["src"],
+	"exclude": ["node_modules", "build"]
 }
