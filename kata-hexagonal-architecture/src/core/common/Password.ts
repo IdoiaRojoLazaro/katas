@@ -1,4 +1,6 @@
+import { create } from 'ts-node';
 import { ValidationError } from './ValidationError';
+import { createHash } from 'crypto';
 
 export enum PasswordErrors {
 	PasswordTooShort = 'must be at least 6 characters long',
@@ -7,11 +9,17 @@ export enum PasswordErrors {
 	PasswordNoNumber = 'must have at least one number',
 	PasswordNoUnderscore = 'must have at least one underscore',
 }
+export function hash(plainText: string) {
+	return createHash('sha256').update(plainText).digest('hex');
+}
 export class Password {
 	private constructor(readonly value: string) {}
 	static create(password: string) {
 		this.isValidPassword(password);
-		return new Password(password);
+		return new Password(hash(password));
+	}
+	toString() {
+		return this.value;
 	}
 	private static isValidPassword(password: string) {
 		let accumulatedErrors = [];
@@ -54,7 +62,8 @@ export class Password {
 		const underscoreRegex = /[_]/;
 		return password.match(underscoreRegex);
 	}
-	// isEquals(password: Password) {
-	// 	return password.value === this.value;
-	// }
+
+	isEquals(password: Password) {
+		return password.value === this.value;
+	}
 }

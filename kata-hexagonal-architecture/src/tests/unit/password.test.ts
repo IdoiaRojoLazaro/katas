@@ -30,4 +30,19 @@ describe('Password', () => {
 		];
 		expect(() => Password.create('*')).toThrow(`Password ${accumulatedErrors.join(', ')}`);
 	});
+	it('should return a hashed password', () => {
+		const password = 'Password1_';
+		const hashedPassword = Password.create(password);
+		const hashedPasswordValue = Password.create(password).toString();
+		console.log('hashedPassword', hashedPassword);
+		expect(hashedPassword).toBeDefined();
+		expect(hashedPassword).not.toEqual(password);
+		expect(hashedPasswordValue.length).toBe(64);
+	});
+	it('should return a hashed password', () => {
+		expect(Password.create('Password1_')).not.toEqual(Password.create('Password2_'));
+	});
+	it('should return a hashed password', () => {
+		expect(Password.create('Password1_')).toEqual(Password.create('Password1_'));
+	});
 });
